@@ -6,6 +6,10 @@ Android-appen: fem fargetemaer med skarpe hjørner og tynn kantlinje, bakgrunnsb
 toppfelt og bunnmeny (Hjem · Bilder · Varsler · Søk · Skriv · Profil). Grensesnittet er på norsk
 (bokmål) når macOS bruker norsk, ellers på engelsk.
 
+![FediMactastic med lokal feed til venstre og varsler i egen kolonne til høyre](docs/FediMactastic.jpg)
+
+Når vinduet er minst 1000 punkter bredt, vises varslene i en egen kolonne til høyre.
+
 ## Installere med Homebrew
 
 ```bash
