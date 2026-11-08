@@ -112,7 +112,7 @@ struct ConfirmDialog: View {
     }
 }
 
-private let repoUrl = "https://github.com/Gauteweb/Feditastic"
+private let repoUrl = "https://github.com/Gauteweb/FediMactastic"
 
 /// «Om appen», fra info-ikonet på profilsiden.
 struct AboutDialog: View {

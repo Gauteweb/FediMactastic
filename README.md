@@ -6,6 +6,20 @@ Android-appen: fem fargetemaer med skarpe hjørner og tynn kantlinje, bakgrunnsb
 toppfelt og bunnmeny (Hjem · Bilder · Varsler · Søk · Skriv · Profil). Grensesnittet er på norsk
 (bokmål) når macOS bruker norsk, ellers på engelsk.
 
+## Installere med Homebrew
+
+```bash
+brew install gauteweb/tap/fedimactastic
+open "$(brew --prefix fedimactastic)/FediMactastic.app"
+```
+
+Homebrew bygger appen fra kildekoden (krever Command Line Tools). Vil du ha den i Launchpad og
+Spotlight, kan du lage en snarvei:
+
+```bash
+mkdir -p ~/Applications && ln -sf "$(brew --prefix fedimactastic)/FediMactastic.app" ~/Applications/
+```
+
 ## Bygge og starte
 
 Krever macOS 14 eller nyere og bare **Command Line Tools** (ikke hele Xcode):
