@@ -549,6 +549,15 @@ struct MainView: View {
                         .padding(.leading, 10)
                     Spacer(minLength: 8)
                     NewNotificationsBadge(model: notificationsModel)
+                    // Oppdaterer varslene (snurrer mens de hentes)
+                    if notificationsModel.paging.refreshing {
+                        Spinner(size: 18).frame(width: 36, height: 36)
+                    } else {
+                        TopIconButton(icon: "arrow.clockwise", help: L("menu_refresh")) {
+                            app.signal(scroll: true, scope: .side)
+                            notificationsModel.refresh()
+                        }
+                    }
                 }
                 .padding(.horizontal, 6)
                 .frame(height: 50)
