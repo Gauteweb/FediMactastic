@@ -17,7 +17,7 @@ struct FediMactasticApp: App {
                 .frame(minWidth: 380, minHeight: 520)
         }
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 560, height: 940)
+        .defaultSize(width: 1100, height: 940)
         .commands { AppCommands() }
     }
 }
