@@ -1,0 +1,5 @@
+.build/
+FediMactastic.app/
+.DS_Store
+*.xcodeproj/
+.swiftpm/
