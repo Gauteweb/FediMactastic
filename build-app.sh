@@ -7,9 +7,10 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 CONFIG="${CONFIG:-release}"
+# --disable-sandbox: SwiftPM kan ikke lage sin egen sandkasse inni Homebrew sin
 echo "==> swift build -c $CONFIG"
-swift build -c "$CONFIG"
-BIN="$(swift build -c "$CONFIG" --show-bin-path)/FediMactastic"
+swift build -c "$CONFIG" --disable-sandbox
+BIN="$(swift build -c "$CONFIG" --disable-sandbox --show-bin-path)/FediMactastic"
 
 APP="FediMactastic.app"
 echo "==> Setter sammen $APP"
