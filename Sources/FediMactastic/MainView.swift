@@ -524,6 +524,12 @@ struct MainView: View {
             TopIconButton(icon: "paintpalette.fill", help: L("theme_button")) { app.present(ThemePickerDialog()) }
             TopIconButton(icon: "info.circle.fill", help: L("about_button")) { app.present(AboutDialog()) }
         }
+        // Oppdaterer skjermen som vises (som ⌘R); ikke på nettsidene (chat og «Om»), som ikke kan oppdateres
+        if nav.top != .chat && nav.top != .instanceAbout {
+            TopIconButton(icon: "arrow.clockwise", help: L("menu_refresh")) {
+                app.signal(scroll: true, refresh: true, scope: .main)
+            }
+        }
     }
 
     private func showSwitcher() {
