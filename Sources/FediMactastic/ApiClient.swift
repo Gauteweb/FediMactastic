@@ -286,6 +286,16 @@ final class ApiClient {
         Status(try await post("/api/v1/statuses/\(urlEncode(id))/\(on ? "reblog" : "unreblog")"))
     }
 
+    /// Hvem som har delt (fremhevet) innlegget.
+    func rebloggedBy(_ id: String) async throws -> [Account] {
+        try await get("/api/v1/statuses/\(urlEncode(id))/reblogged_by?limit=80").array.map(Account.init)
+    }
+
+    /// Hvem som har stjernemerket innlegget.
+    func favouritedBy(_ id: String) async throws -> [Account] {
+        try await get("/api/v1/statuses/\(urlEncode(id))/favourited_by?limit=80").array.map(Account.init)
+    }
+
     func bookmark(_ id: String, _ on: Bool) async throws -> Status {
         Status(try await post("/api/v1/statuses/\(urlEncode(id))/\(on ? "bookmark" : "unbookmark")"))
     }

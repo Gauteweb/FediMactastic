@@ -20,6 +20,11 @@ private let macStringsNB: [String: String] = [
     "publish_shortcut_hint": "⌘↩ publiserer",
     "font_size": "Skriftstørrelse i feedene",
     "font_reset": "Standard",
+    "boosted_by_title": "Delt av",
+    "favourited_by_title": "Stjernemerket av",
+    "nobody_boosted": "Ingen har delt dette innlegget ennå.",
+    "nobody_favourited": "Ingen har stjernemerket dette innlegget ennå.",
+    "who_hint": "Høyreklikk for å se hvem",
 ]
 
 private let macStringsEN: [String: String] = [
@@ -31,6 +36,11 @@ private let macStringsEN: [String: String] = [
     "publish_shortcut_hint": "⌘↩ publishes",
     "font_size": "Text size in feeds",
     "font_reset": "Default",
+    "boosted_by_title": "Boosted by",
+    "favourited_by_title": "Favourited by",
+    "nobody_boosted": "Nobody has boosted this post yet.",
+    "nobody_favourited": "Nobody has favourited this post yet.",
+    "who_hint": "Right-click to see who",
 ]
 
 /// Oversatt tekst. Formatkoder som i Android-ressursene (%1$@, %1$d).

@@ -471,10 +471,12 @@ private struct ActionRow: View {
             }
             Spacer(minLength: 0)
             ActionButton(icon: "arrow.2.squarepath", help: L("action_boost"), count: s.reblogsCount,
-                         tint: s.reblogged ? PT.green : PT.muted, enabled: canBoost) { actions.boost(s) }
+                         tint: s.reblogged ? PT.green : PT.muted, enabled: canBoost,
+                         onRightClick: { showWho(.boosts) }) { actions.boost(s) }
             Spacer(minLength: 0)
             ActionButton(icon: s.favourited ? "star.fill" : "star", help: L("action_favourite"), count: s.favouritesCount,
-                         tint: s.favourited ? PT.orange : PT.muted) { actions.favourite(s) }
+                         tint: s.favourited ? PT.orange : PT.muted,
+                         onRightClick: { showWho(.favourites) }) { actions.favourite(s) }
             Spacer(minLength: 0)
             ActionButton(icon: s.bookmarked ? "bookmark.fill" : "bookmark", help: L("action_bookmark"), count: nil,
                          tint: s.bookmarked ? PT.blue : PT.muted) { actions.bookmark(s) }
@@ -484,6 +486,14 @@ private struct ActionRow: View {
             }
         }
         .padding(.top, 6)
+    }
+
+    private func showWho(_ kind: InteractionsDialog.Kind) {
+        let openProfile = actions.openProfile
+        AppState.shared.present(InteractionsDialog(status: s, kind: kind) { acc in
+            AppState.shared.dismissDialog()
+            openProfile(acc)
+        })
     }
 
     private func moreMenu() {
@@ -524,9 +534,12 @@ private struct ActionButton: View {
     let tint: Color
     var enabled = true
     var rotate = false
+    /// Høyreklikk på knappen (f.eks. «hvem har delt / stjernemerket»).
+    var onRightClick: (() -> Void)? = nil
     let action: () -> Void
 
     var body: some View {
+        let help = onRightClick == nil ? help : help + " – " + L("who_hint")
         Button(action: action) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
@@ -546,8 +559,83 @@ private struct ActionButton: View {
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
+        .overlay { if let onRightClick { RightClickCatcher(action: onRightClick) } }
         .help(help)
         .accessibilityLabel(help)
+        .if(onRightClick != nil) { $0.accessibilityAction(named: L("who_hint")) { onRightClick?() } }
+    }
+}
+
+/// Fanger bare høyreklikk (og ctrl-klikk); vanlige klikk går videre til knappen under.
+private struct RightClickCatcher: NSViewRepresentable {
+    let action: () -> Void
+
+    func makeNSView(context: Context) -> CatcherView { CatcherView() }
+    func updateNSView(_ v: CatcherView, context: Context) { v.action = action }
+
+    final class CatcherView: NSView {
+        var action: (() -> Void)?
+
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            guard let e = NSApp.currentEvent else { return nil }
+            let right = e.type == .rightMouseDown || e.type == .rightMouseUp
+                || (e.type == .leftMouseDown && e.modifierFlags.contains(.control))
+            return right ? super.hitTest(point) : nil
+        }
+
+        override func rightMouseDown(with event: NSEvent) { action?() }
+        override func mouseDown(with event: NSEvent) { action?() }
+        override func menu(for event: NSEvent) -> NSMenu? { nil }
+    }
+}
+
+/// Hvem har delt eller stjernemerket et innlegg (åpnes med høyreklikk på knappen).
+struct InteractionsDialog: View {
+    enum Kind { case boosts, favourites }
+
+    let status: Status
+    let kind: Kind
+    let onOpen: (Account) -> Void
+    @ViewState private var result: Result<[Account], Error>?
+
+    var body: some View {
+        PDialog(L(kind == .boosts ? "boosted_by_title" : "favourited_by_title"), buttons: [.close()]) {
+            Group {
+                switch result {
+                case nil: LoadingRow()
+                case .failure(let e): Text(userMessage(e)).foregroundStyle(PT.text)
+                case .success(let list) where list.isEmpty:
+                    Text(L(kind == .boosts ? "nobody_boosted" : "nobody_favourited")).foregroundStyle(PT.muted)
+                case .success(let list):
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(list) { acc in
+                            HStack(spacing: 10) {
+                                Avatar(url: acc.avatar, size: 40)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    EmojiText(text: acc.name, emojis: acc.emojis, tone: .text, bold: true, maxLines: 1,
+                                              onTap: { onOpen(acc) })
+                                    Text("@" + acc.acct).font(.system(size: PF.small)).foregroundStyle(PT.muted).lineLimit(1)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding(8)
+                            .pBorder(PT.border.opacity(0.35))
+                            .contentShape(Rectangle())
+                            .onTapGesture { onOpen(acc) }
+                            .handCursor()
+                        }
+                    }
+                }
+            }
+        }
+        .task {
+            let api = AppState.shared.api
+            do {
+                result = .success(kind == .boosts ? try await api.rebloggedBy(status.id) : try await api.favouritedBy(status.id))
+            } catch {
+                result = .failure(error)
+            }
+        }
     }
 }
 
