@@ -712,10 +712,13 @@ private struct LinkCard: View {
         let host = card.providerName.flatMap { isBlank($0) ? nil : $0 } ?? URL(string: card.url)?.host ?? ""
         VStack(alignment: .leading, spacing: 0) {
             if let image = card.image, !isBlank(image) {
-                RemoteImage(url: image, fill: false) { ratio = $0.aspect }
-                    .aspectRatio(ratio ?? 1.91, contentMode: .fit)
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 240)
+                // Fyller hele bredden; høye bilder beskjæres oppe og nede (høyst 1,5:1 i høyden)
+                Color.clear
+                    .aspectRatio(min(max(ratio ?? 1.91, 1.5), 4), contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .overlay { RemoteImage(url: image, fill: true) { ratio = $0.aspect } }
                     .background(PT.bg)
+                    .clipped()
                 PDivider(color: PT.border.opacity(0.6))
             }
             VStack(alignment: .leading, spacing: 2) {
