@@ -3,7 +3,7 @@
 macOS-utgaven av [Feditastic](https://github.com/Gauteweb/Feditastic), en klient for Fediverset
 (Pleroma, Akkoma, GoToSocial og Mastodon). Den har samme funksjoner og samme utseende som
 Android-appen: fem fargetemaer med skarpe hjørner og tynn kantlinje, bakgrunnsbildet med slør,
-toppfelt og bunnmeny (Hjem · Bilder · Varsler · Søk · Skriv · Profil). Grensesnittet er på norsk
+toppfelt med fanerad under (Hjem · Bilder · Varsler · Søk · Profil · Skriv). Grensesnittet er på norsk
 (bokmål) når macOS bruker norsk, ellers på engelsk.
 
 ![FediMactastic med lokal feed til venstre og varsler i egen kolonne til høyre](docs/FediMactastic.jpg)
@@ -60,7 +60,7 @@ push-varsler/timesoppsummering:
 
 | Android | Mac |
 |---|---|
-| Hold inne et ikon i bunnmenyen | Verktøytips når du holder pekeren over |
+| Hold inne et ikon i fanelinjen | Verktøytips når du holder pekeren over |
 | Sveip mellom faner | ⌘1–⌘5 (menyen «Gå») |
 | Dra ned for å oppdatere | ⌘R, eller dobbeltklikk på fanen |
 | Tilbake-knappen | Pilen i toppfeltet eller ⌘[ |
@@ -75,7 +75,7 @@ Kildekoden ligger i `Sources/FediMactastic/` og følger Android-appen fil for fi
 
 - `Models.swift`, `Json.swift`, `ApiClient.swift`, `SessionStore.swift` – data, API og lagring
 - `ViewModels.swift`, `Auth.swift`, `AppState.swift` – tilstand (tilsvarer `vm/` og `Graph`)
-- `MainView.swift` – navigasjon, toppfelt og bunnmeny
+- `MainView.swift` – navigasjon, toppfelt og fanerad
 - `StatusCard.swift`, `Screens.swift`, `Compose.swift`, `Dialogs.swift` – skjermene
 - `HtmlParse.swift`, `RichText.swift` – HTML fra instansen til tekst med lenker og emojier
 - `Images.swift`, `Video.swift`, `ImageViewer.swift`, `WebViews.swift` – medier, chat og «Om»
