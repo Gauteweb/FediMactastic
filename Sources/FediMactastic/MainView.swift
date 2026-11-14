@@ -154,6 +154,7 @@ struct MainView: View {
                 HStack(spacing: 0) {
                     VStack(spacing: 0) {
                         topBar
+                        tabRow
                         content
                     }
                     .frame(width: wide ? mainWidth : nil)
@@ -162,8 +163,6 @@ struct MainView: View {
                         notificationsPanel
                     }
                 }
-                // Bunnmenyen går over hele vinduet, men knappene står under hovedkolonnen
-                bottomBar
             }
             if let args = nav.compose {
                 ZStack {
@@ -583,39 +582,35 @@ struct MainView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: Bunnmeny
+    // MARK: Fanerad
 
-    /// Bunnlinje: Hjem · Bilder · Varsler · Søk · [Skriv] · Profil
-    private var bottomBar: some View {
+    /// Fanerad under toppfeltet, på linje med «Alle / Svar» i varselkolonnen:
+    /// Hjem · Bilder · Varsler · Søk · Profil · Skriv – bare symbolene, uten bokser.
+    private var tabRow: some View {
         VStack(spacing: 0) {
-            PDivider()
             HStack(spacing: 0) {
                 navItem(.home)
                 navItem(.media)
                 if !wide { navItem(.notifications) }
                 navItem(.search)
-                // «Skriv nytt innlegg»: fremhevet knapp midt i linjen
+                navItem(.profile)
                 Button { nav.compose = ComposeArgs() } label: {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 19, weight: .semibold))
-                        .foregroundStyle(PT.fg)
-                        .frame(width: 44, height: 44)
-                        .background(PT.link)
-                        .pBorder(PT.border)
+                    Image(systemName: "square.and.pencil")
+                        .font(.system(size: 19))
+                        .foregroundStyle(PT.link)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .help(L("nav_compose"))
-                .frame(maxWidth: .infinity)
-                navItem(.profile)
+                .accessibilityLabel(L("nav_compose"))
             }
-            .frame(height: 56)
-            // Sentrert under innholdet i hovedkolonnen
             .frame(maxWidth: contentMaxWidth)
-            .frame(width: wide ? mainWidth : nil)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: 50)
+            .frame(maxWidth: .infinity)
+            PDivider()
         }
-        .background(PT.topBar)
+        .background(PT.fg.opacity(0.92))
     }
 
     private func navItem(_ t: MainTab) -> some View {
@@ -623,13 +618,18 @@ struct MainView: View {
         return Button { tap(t) } label: {
             Image(systemName: t.icon)
                 .font(.system(size: 19))
-                .foregroundStyle(selected ? PT.navActive : PT.link)
+                .foregroundStyle(selected ? PT.link : PT.muted)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Strek under valgt fane
+                .overlay(alignment: .bottom) {
+                    if selected { Rectangle().fill(PT.link).frame(width: 28, height: 3) }
+                }
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .help(t.label)
         .accessibilityLabel(t.label)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     /// Første klikk navigerer med en gang; et nytt klikk på samme knapp like etter er et dobbeltklikk,

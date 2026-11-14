@@ -209,10 +209,15 @@ struct ComposeView: View {
     var body: some View {
         VStack(spacing: 0) {
             topBar
+            toolBar
             if loadingEdit {
                 Spacer()
                 Spinner(size: 32)
                 Spacer()
+                // Så man kan avbryte mens innlegget som skal redigeres, hentes
+                HStack { Spacer(); PButton(text: L("cancel"), action: onClose) }
+                    .padding(8)
+                    .frame(maxWidth: contentMaxWidth)
             } else {
                 editorArea
             }
@@ -226,7 +231,6 @@ struct ComposeView: View {
                 }
             }
             if emojiOpen { EmojiPicker(onPick: insertEmoji) }
-            bottomBar
         }
         .onAppear(perform: setup)
         .task { await loadEdit() }
@@ -281,7 +285,8 @@ struct ComposeView: View {
                 .frame(minHeight: 140, maxHeight: .infinity)
                 .background(PT.fg.opacity(0.85))
                 .pBorder(PT.border)
-            HStack {
+            // Under tekstboksen, høyrestilt: tegntelleren, så «Avbryt» og «Publiser»
+            HStack(spacing: 6) {
                 Spacer()
                 // Boks i samme stil som «Skriv»-knappen, så telleren synes uansett bakgrunnsbilde
                 Text(L("char_counter", length, maxChars))
@@ -291,6 +296,8 @@ struct ComposeView: View {
                     .padding(.vertical, 3)
                     .background(over ? PT.orange : PT.link)
                     .pBorder(PT.border)
+                Spacer().frame(width: 10)
+                sendButtons
             }
             if !attachments.isEmpty { attachmentRow }
         }
@@ -358,58 +365,60 @@ struct ComposeView: View {
         .scrollIndicators(.hidden)
     }
 
-    private var bottomBar: some View {
+    /// Verktøyknappene under toppfeltet: vedlegg, innholdsvarsel, emoji, språk, synlighet, Markdown.
+    private var toolBar: some View {
         VStack(spacing: 0) {
-            PDivider()
             ScrollView(.horizontal) {
-                HStack(spacing: 6) {
-                    PButton(text: "", icon: "photo", enabled: attachments.count < 4 && !loadingEdit, help: L("compose_attach")) {
-                        pickFiles()
-                    }
-                    PButton(text: "", icon: "exclamationmark.triangle.fill", filled: cwOn, help: L("compose_cw_toggle")) {
-                        cwOn.toggle()
-                    }
-                    PButton(text: "", icon: "face.smiling", filled: emojiOpen, help: L("compose_emoji")) {
-                        emojiOpen.toggle()
-                    }
-                    PButton(
-                        text: language?.uppercased() ?? "–", icon: "character.bubble",
-                        enabled: !loadingEdit,
-                        help: L("language_label") + (language.map { ": " + languageName($0) } ?? "")
-                    ) {
-                        showMenu(postLanguages.map { code in
-                            .item(languageName(code) + " (\(code))", checked: code == language) { language = code }
-                        })
-                    }
-                    // Synlighet kan ikke endres når man redigerer et eksisterende innlegg
-                    PButton(
-                        text: "", icon: visibilityIcon(visibility), enabled: !editing,
-                        help: L("visibility") + ": " + visibilityLabel(visibility)
-                    ) {
-                        showMenu(visibilities.map { v in
-                            .item(visibilityLabel(v), icon: visibilityIcon(v), checked: v == visibility) { visibility = v }
-                        })
-                    }
-                    if markdownSupported {
-                        PButton(text: L("compose_markdown"), filled: markdown) { markdown.toggle() }
-                    }
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
+                HStack(spacing: 6) { toolButtons }.padding(8)
             }
             .scrollIndicators(.hidden)
             .frame(maxWidth: contentMaxWidth)
-            HStack(spacing: 8) {
-                PButton(text: L("cancel"), expand: true, action: onClose)
-                PButton(text: L(editing ? "compose_update" : "compose_publish"), filled: true, enabled: canSend,
-                        help: L("publish_shortcut_hint"), expand: true, action: send)
-                    .keyboardShortcut(.return, modifiers: .command)
-            }
-            .padding([.horizontal, .bottom], 8)
-            .frame(maxWidth: contentMaxWidth)
+            PDivider()
         }
         .frame(maxWidth: .infinity)
-        .background(PT.fg)
+        .background(PT.fg.opacity(0.92))
+    }
+
+    @ViewBuilder
+    private var toolButtons: some View {
+        PButton(text: "", icon: "photo", enabled: attachments.count < 4 && !loadingEdit, help: L("compose_attach")) {
+            pickFiles()
+        }
+        PButton(text: "", icon: "exclamationmark.triangle.fill", filled: cwOn, help: L("compose_cw_toggle")) {
+            cwOn.toggle()
+        }
+        PButton(text: "", icon: "face.smiling", filled: emojiOpen, help: L("compose_emoji")) {
+            emojiOpen.toggle()
+        }
+        PButton(
+            text: language?.uppercased() ?? "–", icon: "character.bubble",
+            enabled: !loadingEdit,
+            help: L("language_label") + (language.map { ": " + languageName($0) } ?? "")
+        ) {
+            showMenu(postLanguages.map { code in
+                .item(languageName(code) + " (\(code))", checked: code == language) { language = code }
+            })
+        }
+        // Synlighet kan ikke endres når man redigerer et eksisterende innlegg
+        PButton(
+            text: "", icon: visibilityIcon(visibility), enabled: !editing,
+            help: L("visibility") + ": " + visibilityLabel(visibility)
+        ) {
+            showMenu(visibilities.map { v in
+                .item(visibilityLabel(v), icon: visibilityIcon(v), checked: v == visibility) { visibility = v }
+            })
+        }
+        if markdownSupported {
+            PButton(text: L("compose_markdown"), filled: markdown) { markdown.toggle() }
+        }
+    }
+
+    @ViewBuilder
+    private var sendButtons: some View {
+        PButton(text: L("cancel"), action: onClose)
+        PButton(text: L(editing ? "compose_update" : "compose_publish"), filled: true, enabled: canSend,
+                help: L("publish_shortcut_hint"), action: send)
+            .keyboardShortcut(.return, modifiers: .command)
     }
 
     // MARK: Handlinger
